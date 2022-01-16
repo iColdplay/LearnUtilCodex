@@ -21,14 +21,26 @@ public class MainActivity extends AppCompatActivity {
 
     public MainActivity(){
         // on object constructor method
-        buttonInvokeClicked();
+        Thread subThread = new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                addActivityLifecycleCallbacks();
+            }
+        };subThread.start();
+        try {
+            Thread.sleep(2 * 1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        LogUtil.e(TAG, "MainActivity Constructor");
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        binding.buttonInvoke.setOnClickListener(v -> buttonInvokeClicked());
+        binding.buttonInvoke.setOnClickListener(v -> addActivityLifecycleCallbacks());
         LogUtil.e(TAG, "onCreate() finished");
     }
 
@@ -50,8 +62,8 @@ public class MainActivity extends AppCompatActivity {
         LogUtil.e(TAG, "onResume() finished");
     }
 
-    private void buttonInvokeClicked() {
-        ActivityUtils.addActivityLifecycleCallbacks(this,
+    private void addActivityLifecycleCallbacks() {
+        ActivityUtils.addActivityLifecycleCallbacks(MainActivity.this,
                 new Utils.ActivityLifecycleCallbacks(){
                     @Override
                     public void onActivityCreated(@NonNull Activity activity) {
@@ -95,5 +107,15 @@ public class MainActivity extends AppCompatActivity {
                         LogUtil.e(TAG, "onLifecycleChanged() activity: " + activity + " event: " + event);
                     }
                 });
+    }
+
+    private void func2(){
+        ActivityUtils.addActivityLifecycleCallbacks(new Utils.ActivityLifecycleCallbacks(){
+            @Override
+            public void onActivityCreated(@NonNull Activity activity) {
+                super.onActivityCreated(activity);
+                LogUtil.e(TAG, "no activity param call back: " + "onActivityCreated()");
+            }
+        });
     }
 }
